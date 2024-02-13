@@ -1,25 +1,25 @@
 import os 
 import doublescanner
-import tqdm
-import files
-
 
 def autosave(disk1 ,disk2):
-    filesDisk2 = doublescanner.scanDisk(disk2)
-    filesDisk1 = doublescanner.scanDisk(disk1)
-    for i in tqdm.tqdm(range(len(filesDisk1))):
-        find = False
-        for j in range(len(filesDisk2)):
-            if filesDisk1[i][1] == filesDisk2[j][1] and files.isUserFile(filesDisk1[i][1]):  # vérifier si le nom du fichier existe dans le deuxième dictionnaire
-                find = True
-                if not doublescanner.isIdentique(str(filesDisk1[i][0]), str(filesDisk2[j][0])):
-                    print(f"Le fichier {filesDisk1[i][0]} est différent de {filesDisk2[j][0]}")
-                    print(f"Le fichier {filesDisk1[i][0]} est en cours de copie ...")
-                    os.system(f"cp {filesDisk1[i][0]} {disk2+filesDisk1[i][0] }")
-                    print(f"Le fichier {filesDisk1[i][0]} a été copié.")
-                    break
-        if not find and files.isUserFile(filesDisk1[i][1]):
-            print(f"Le fichier {filesDisk1[i][0]} est en cours de copie ...")
-            os.system(f"cp {filesDisk1[i][0]} {disk2+filesDisk1[i][0] }")
-            print(f"Le fichier {filesDisk1[i][0]} a été copié.")  
+    for racine, dossiers, fichiersDisk1 in os.walk(disk1):
+        for fichier in fichiersDisk1:
+            if doublescanner.isFileSystem(fichier):
+                continue
+            else:
+                chemin_fichier = os.path.join(racine, fichier)
+                notInDisk2 = False
+                if fichier in doublescanner.filesDictDisk2:
+                    if doublescanner.isIdentique(str(doublescanner.filesDictDisk1[fichier]), str(doublescanner.filesDictDisk2[fichier])):
+                        print(f"Les fichiers {fichier} sont identiques : ", doublescanner.filesDictDisk1[fichier], doublescanner.filesDictDisk2[fichier])
+                    else:
+                        notInDisk2 = True
+                else:
+                    notInDisk2 = True
+                if notInDisk2:
+                    print(f"Le fichier {fichier} n'existe pas dans le répertoire de sauvegarde.")
+                    print(f"Le fichier {fichier} sera copié dans le répertoire de sauvegarde.")
+                    #os.system(f"cp {doublescanner.filesDictDisk1[fichier]} {disk2}")
     print("La sauvegarde est terminée.")
+
+autosave("/Users/flaviendieval/Downloads", "/Users/flaviendieval/Documents")
