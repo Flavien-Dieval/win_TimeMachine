@@ -1,42 +1,85 @@
-import difflib
 import os
+import infoFile
+import tqdm 
+import hashlib
 
 def isIdentique(file1, file2):
-    with open(file1, 'r') as f1, open(file2, 'r') as f2:
-        text1 = f1.readlines()
-        text2 = f2.readlines()
+    if not infoFile.isUserFile(file1) or not infoFile.isUserFile(file2):
+        return False
+    try :
+        with open(file1, 'rb') as f1, open(file2, 'rb') as f2:
+            text1 = f1.read()
+            text2 = f2.read()
+        return text1 == text2
+    except PermissionError as e:
+        print(f"Erreur: permission refusée")
 
-    diff = list(difflib.unified_diff(text1, text2, fromfile=file1, tofile=file2, n=3))
+    except Exception as e:
+        print(f"Erreur : impossible de decoder le fichier {file1} ou {file2} {e}", e.__traceback__.tb_lineno, e.__traceback__.tb_frame.f_code.co_filename, file1, file2)
+        return False
 
-    if not diff:
-        print("Les deux fichiers sont identiques.")
-        return True
-    return False
 
-def isFileSystem(file:str)->bool:
-    return file.startswith(".") or file.startswith("__")
+def scanDisk(disk: str) -> list:
+    try :
+        filesDict = []
+        for root, dirs, files in tqdm.tqdm(os.walk(disk)):
+            dirs[:] = [d for d in dirs if not d[0] == '.' and  d !="AppData"]  # Ignorer les dossiers commençant par un point
+            for file in files:
+                if not infoFile.isUserFile(file) or file.startswith(".") or file.startswith("__") or file.startswith('~') or file.startswith("._") or file.startswith("$") or file.startswith("_"):
+                    file_path = os.path.join(root, file)
+                    filesDict.append((file_path, file))
+        return filesDict
+    except Exception as e: 
+        print(f"Erreur : {e}", e.__traceback__.tb_lineno)
 
-def diskScanner(dis1: str="/chemin/vers/repertoire/racine", dis2: str="/chemin/vers/repertoire/externe"):
-    filesDictDisk1 = {}
-    filesDictDisk2 = {}
-    for racine, dossiers, fichiersDisk1 in os.walk(dis1):
-        for fichier in fichiersDisk1:
-            if isFileSystem(fichier):
-                continue
-            else:
-                chemin_fichier = os.path.join(racine, fichier)
-                filesDictDisk1[fichier] = chemin_fichier  # stocker le nom du fichier comme clé
-    for racine, dossiers, fichiersDisk2 in os.walk(dis2):
-        for fichier in fichiersDisk2:
-            if isFileSystem(fichier):
-                continue
-            else:
-                chemin_fichier = os.path.join(racine, fichier)
-                filesDictDisk2[fichier] = chemin_fichier  # stocker le nom du fichier comme clé
+def diskScanner(disk1: str, disk2: str)->None:
+    try :
+        print("Analyse des fichiers en cours ... ")
+        print("Veuillez patienter ... ")
+        filesDictDisk1 = scanDisk(disk1)
+        filesDictDisk2 = scanDisk(disk2)
+        cmptFind = 0
+        print("Comparaison des fichiers en cours ... ")
+        for i in tqdm.tqdm(range(len((filesDictDisk1)))):
+            for j in range(len(filesDictDisk2)):
+                if filesDictDisk1[i][1] == filesDictDisk2[j][1]:  # vérifier si le nom du fichier existe dans le deuxième dictionnaire
+                    if isIdentique(str(filesDictDisk1[i][0]), str(filesDictDisk2[j][0])):
+                        cmptFind += 1
+                        if cmptFind == 1:
+                            print("Les fichiers suivants sont identiques : ")
+                        print(f"{cmptFind}{filesDictDisk1[i][0]} = {filesDictDisk2[j][0]} ")
+        print(f"Analyse terminée. TOTAL : {cmptFind}")
+    except Exception as e:
+        print(f"Erreur : {e}", e.__traceback__.tb_lineno, e.__traceback__.tb_frame.f_code.co_filename, filesDictDisk1[i][0], filesDictDisk2[j][0])
 
-    for fichier in filesDictDisk1:
-        if fichier in filesDictDisk2:  # vérifier si le nom du fichier existe dans le deuxième dictionnaire
-            if isIdentique(str(filesDictDisk1[fichier]), str(filesDictDisk2[fichier])):
-                print(f"Les fichiers {fichier} sont identiques : ", filesDictDisk1[fichier], filesDictDisk2[fichier])
 
-diskScanner("/Users/flaviendieval/Downloads", "/Users/flaviendieval/Documents")
+
+
+def hash_file(file_path):
+    if not infoFile.isUserFile(file_path):
+        return None
+    try:
+        with open(file_path, 'rb') as f:
+            return hashlib.md5(f.read()).hexdigest()
+    except Exception as e:
+        print(f"Erreur lors du hachage du fichier {file_path}: {e}", e.__traceback__.tb_lineno)
+        return None
+
+def uniqueRepDuppli(rep:str)-> None:
+    try :
+        print("Analyse des fichiers en cours ... ")
+        print("Veuillez patienter ... ")
+        filesinRep = scanDisk(rep)
+        find = []
+        cmptFind = 0
+        for i in tqdm.tqdm(range(len(filesinRep))):
+            cmpt = 0
+            for j in range(len(filesinRep)):
+                if i !=j and isIdentique(filesinRep[i][0], filesinRep[j][0]):
+                    cmptFind += 1
+                    if cmptFind == 1:
+                        print("Les fichiers suivants sont identiques : ")
+                    print(f"{filesinRep[i][1]} = {filesinRep[j][1]} ")
+        print(f"Analyse terminée. TOTAL : {cmptFind}")
+    except Exception as e:
+        print(f"Erreur : {e}", e.__traceback__.tb_lineno, e.__traceback__.tb_frame.f_code.co_filename, filesinRep[i][0])
