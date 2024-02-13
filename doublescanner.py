@@ -9,7 +9,6 @@ def isIdentique(file1, file2):
     diff = list(difflib.unified_diff(text1, text2, fromfile=file1, tofile=file2, n=3))
 
     if not diff:
-        print("Les deux fichiers sont identiques.")
         return True
     return False
 
@@ -17,6 +16,8 @@ def isFileSystem(file:str)->bool:
     return file.startswith(".") or file.startswith("__")
 
 def diskScanner(dis1: str="/chemin/vers/repertoire/racine", dis2: str="/chemin/vers/repertoire/externe"):
+    print("Analyse des fichiers en cours ... ")
+    print("Veuillez patienter ... ")
     filesDictDisk1 = {}
     filesDictDisk2 = {}
     for racine, dossiers, fichiersDisk1 in tqdm.tqdm(os.walk(dis1)):
@@ -33,8 +34,11 @@ def diskScanner(dis1: str="/chemin/vers/repertoire/racine", dis2: str="/chemin/v
             else:
                 chemin_fichier = os.path.join(racine, fichier)
                 filesDictDisk2[fichier] = chemin_fichier  # stocker le nom du fichier comme clé
-
+    cmptFind = 0
     for fichier in tqdm.tqdm(filesDictDisk1):
         if fichier in filesDictDisk2:  # vérifier si le nom du fichier existe dans le deuxième dictionnaire
+            cmptFind += 1
+            if cmptFind == 1:
+                print("Les fichiers suivants sont identiques : ")
             if isIdentique(str(filesDictDisk1[fichier]), str(filesDictDisk2[fichier])):
-                print(f"Les fichiers {fichier} sont identiques : ", filesDictDisk1[fichier], filesDictDisk2[fichier])
+                print(f"{filesDictDisk1[fichier]} = {filesDictDisk2[fichier]} ")
