@@ -1,7 +1,7 @@
-import doublescanner
-import tqdm, os 
+import doublescanner, autosave
+import os 
 
-def doublon():
+def repDuppli():
     try :
         while True : 
             pathDisk1 = input("Saisir le chemin vers le premier repertoire à scanner : ")
@@ -23,6 +23,28 @@ def doublon():
     except Exception as e:
         print("Erreur lors de l'analyse des fichiers en doubles.: ", e)
 
+def save():
+    try :
+        while True : 
+            pathDisk1 = input("Saisir le chemin vers le repertoire original : ")
+            if os.path.exists(pathDisk1):
+                break
+            else :
+                print("Erreur : le repertoire n'existe pas.")
+        while True : 
+            pathDisk2 = input("Saisir le chemin le repertoire de sauvegarde : ")
+            if os.path.exists(pathDisk2):
+                break
+            else :
+                print("Erreur : le repertoire n'existe pas.")
+        autosave.autosave(pathDisk1, pathDisk2)
+    except KeyboardInterrupt:
+        print("Opération annulée.")
+    except ModuleNotFoundError:
+        print("Erreur : le module tqdm ou os n'est pas installé. Veuillez l'installer pour continuer.")
+    except Exception as e:
+        print("Erreur lors de l'analyse des fichiers en doubles.: ", e)
+
 def logo():
     print(r"          _              _____ _                                       _     _             ")
     print(r"__      _(_)_ __        /__   (_)_ __ ___   ___   _ __ ___   __ _  ___| |__ (_)_ __   ___  ")
@@ -35,12 +57,23 @@ def main():
     logo()
     while True : 
         print("Usage :")
-        print("\t1 - Fichiers duppliqués (2 repertoires), \n\t2 - Doublon \n\t3 - Sauvegarder \n\t4 - Quitter")
+        print("\t1 - Doublons (2 repertoires), \n\t2 - Doublons (1 repertoires) \n\t3 - Sauvegarder (BETA) \n\t4 - Quitter")
         entry = input("Saisir une opération : ").split(" ")[0].rstrip()
         if entry == '1' : 
-            doublon()
+            repDuppli()
             input("Appuyer sur une touche pour continuer.")
-        elif entry =='5':
+        elif entry == '2':
+            while True : 
+                path = input("Saisir le chemin vers le repertoire à scanner : ")
+                if os.path.exists(path):break
+                else :print("Erreur : le repertoire n'existe pas.")
+            doublescanner.uniqueRepDuppli(path)
+            input("Appuyer sur une touche pour continuer.")
+        elif entry == '3':
+            save()
+            input("Appuyer sur une touche pour continuer.")
+        elif entry =='4':
+            print("Au revoir.")
             exit()
         else :
             print("Commande non reconnue.")

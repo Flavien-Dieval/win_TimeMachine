@@ -15,30 +15,45 @@ def isIdentique(file1, file2):
 def isFileSystem(file:str)->bool:
     return file.startswith(".") or file.startswith("__")
 
-def diskScanner(dis1: str="/chemin/vers/repertoire/racine", dis2: str="/chemin/vers/repertoire/externe"):
+def scanDisk(disk: str) -> list:
+    filesDict = []
+    for root, _, files in tqdm.tqdm(os.walk(disk)):
+        for file in files:
+            if not isFileSystem(file):
+                file_path = os.path.join(root, file)
+                filesDict.append((file_path, file))
+    return filesDict
+
+def diskScanner(disk1: str, disk2: str)->None:
     print("Analyse des fichiers en cours ... ")
     print("Veuillez patienter ... ")
-    filesDictDisk1 = {}
-    filesDictDisk2 = {}
-    for racine, dossiers, fichiersDisk1 in tqdm.tqdm(os.walk(dis1)):
-        for fichier in fichiersDisk1:
-            if isFileSystem(fichier):
-                continue
-            else:
-                chemin_fichier = os.path.join(racine, fichier)
-                filesDictDisk1[fichier] = chemin_fichier  # stocker le nom du fichier comme clé
-    for racine, dossiers, fichiersDisk2 in tqdm.tqdm(os.walk(dis2)):
-        for fichier in fichiersDisk2:
-            if isFileSystem(fichier):
-                continue
-            else:
-                chemin_fichier = os.path.join(racine, fichier)
-                filesDictDisk2[fichier] = chemin_fichier  # stocker le nom du fichier comme clé
+    filesDictDisk1 = scanDisk(disk1)
+    filesDictDisk2 = scanDisk(disk2)
     cmptFind = 0
-    for fichier in tqdm.tqdm(filesDictDisk1):
-        if fichier in filesDictDisk2:  # vérifier si le nom du fichier existe dans le deuxième dictionnaire
-            cmptFind += 1
-            if cmptFind == 1:
-                print("Les fichiers suivants sont identiques : ")
-            if isIdentique(str(filesDictDisk1[fichier]), str(filesDictDisk2[fichier])):
-                print(f"{filesDictDisk1[fichier]} = {filesDictDisk2[fichier]} ")
+    print("Comparaison des fichiers en cours ... ")
+    for i in tqdm.tqdm(range(len((filesDictDisk1)))):
+        for j in range(len(filesDictDisk2)):
+            if filesDictDisk1[i][1] == filesDictDisk2[j][1]:  # vérifier si le nom du fichier existe dans le deuxième dictionnaire
+                if isIdentique(str(filesDictDisk1[i][0]), str(filesDictDisk2[j][0])):
+                    cmptFind += 1
+                    if cmptFind == 1:
+                        print("Les fichiers suivants sont identiques : ")
+                    print(f"{cmptFind}{filesDictDisk1[i][0]} = {filesDictDisk2[j][0]} ")
+    print(f"Analyse terminée. TOTAL : {cmptFind}")
+
+
+def uniqueRepDuppli(rep:str)-> None:
+    print("Analyse des fichiers en cours ... ")
+    print("Veuillez patienter ... ")
+    filesinRep = scanDisk(rep)
+    find = []
+    cmptFind = 0
+    for i in tqdm.tqdm(range(len(filesinRep))):
+        cmpt = 0
+        for j in range(len(filesinRep)):
+            if i !=j and isIdentique(filesinRep[i][0], filesinRep[j][0]):
+                cmptFind += 1
+                if cmptFind == 1:
+                    print("Les fichiers suivants sont identiques : ")
+                print(f"{filesinRep[i][1]} = {filesinRep[j][1]} ")
+    print(f"Analyse terminée. TOTAL : {cmptFind}")
