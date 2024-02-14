@@ -1,4 +1,4 @@
-import doublescanner, autosave
+import doublescanner, autosave, doublonScan
 import os 
 
 def repDuppli():
@@ -68,7 +68,7 @@ def main():
                     path = input("Saisir le chemin vers le repertoire à scanner : ")
                     if os.path.exists(path):break
                     else :print("Erreur : le repertoire n'existe pas.")
-                doublescanner.uniqueRepDuppli(path)
+                doublonScan.doublonScanRep(path)
                 input("Appuyer sur une touche pour continuer.")
             elif entry == '3':
                 save()

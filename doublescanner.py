@@ -1,7 +1,6 @@
 import os
 import infoFile
 import tqdm 
-import hashlib
 
 def isIdentique(file1, file2):
     if not infoFile.isUserFile(file1) or not infoFile.isUserFile(file2):
@@ -51,35 +50,3 @@ def diskScanner(disk1: str, disk2: str)->None:
         print(f"Analyse terminée. TOTAL : {cmptFind}")
     except Exception as e:
         print(f"Erreur : {e}", e.__traceback__.tb_lineno, e.__traceback__.tb_frame.f_code.co_filename, filesDictDisk1[i][0], filesDictDisk2[j][0])
-
-
-
-
-def hash_file(file_path):
-    if not infoFile.isUserFile(file_path):
-        return None
-    try:
-        with open(file_path, 'rb') as f:
-            return hashlib.md5(f.read()).hexdigest()
-    except Exception as e:
-        print(f"Erreur lors du hachage du fichier {file_path}: {e}", e.__traceback__.tb_lineno)
-        return None
-
-def uniqueRepDuppli(rep:str)-> None:
-    try :
-        print("Analyse des fichiers en cours ... ")
-        print("Veuillez patienter ... ")
-        filesinRep = scanDisk(rep)
-        find = []
-        cmptFind = 0
-        for i in tqdm.tqdm(range(len(filesinRep))):
-            cmpt = 0
-            for j in range(len(filesinRep)):
-                if i !=j and isIdentique(filesinRep[i][0], filesinRep[j][0]):
-                    cmptFind += 1
-                    if cmptFind == 1:
-                        print("Les fichiers suivants sont identiques : ")
-                    print(f"{filesinRep[i][1]} = {filesinRep[j][1]} ")
-        print(f"Analyse terminée. TOTAL : {cmptFind}")
-    except Exception as e:
-        print(f"Erreur : {e}", e.__traceback__.tb_lineno, e.__traceback__.tb_frame.f_code.co_filename, filesinRep[i][0])
