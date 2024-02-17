@@ -58,7 +58,7 @@ def main():
         logo()
         while True : 
             print("Usage :")
-            print("\t1 - Doublons (2 repertoires), \n\t2 - Doublons (1 repertoires) \n\t3 - Sauvegarder (BETA) \n\t4 - Quitter")
+            print("\t1 - Doublons (2 repertoires) (obsolete)\n\t2 - Doublons (1 repertoires) \n\t3 - Sauvegarder (BETA) \n\t4 - Quitter")
             entry = input("Saisir une opération : ").split(" ")[0].rstrip()
             if entry == '1' : 
                 repDuppli()
