@@ -1,4 +1,4 @@
-import doublescanner, autosave, doublonScan
+import TwoRepScanner, autosave, doublonScan
 import os 
 
 def repDuppli():
@@ -15,7 +15,7 @@ def repDuppli():
                 break
             else :
                 print("Erreur : le repertoire n'existe pas.")
-        doublescanner.diskScanner(pathDisk1, pathDisk2)
+        TwoRepScanner.twoRepScanner(pathDisk1, pathDisk2)
     except KeyboardInterrupt:
         print("Opération annulée.")
     except ModuleNotFoundError:
@@ -58,7 +58,7 @@ def main():
         logo()
         while True : 
             print("Usage :")
-            print("\t1 - Doublons (2 repertoires) (obsolete)\n\t2 - Doublons (1 repertoires) \n\t3 - Sauvegarder (BETA) \n\t4 - Quitter")
+            print("\t1 - Doublons (2 repertoires)\n\t2 - Doublons (1 repertoires) \n\t3 - Sauvegarder (BETA) \n\t4 - Quitter")
             entry = input("Saisir une opération : ").split(" ")[0].rstrip()
             if entry == '1' : 
                 repDuppli()
@@ -82,7 +82,5 @@ def main():
         print("Au revoir.")
     except Exception as e:
         print("Erreur critique : ", e, e.__traceback__.tb_lineno)
-
-
 
 main()
