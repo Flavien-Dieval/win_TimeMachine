@@ -1,4 +1,4 @@
-import TwoRepScanner, autosave, doublonScan
+import TwoRepScanner, autosave, doublonScan, filesAndDirectory
 import os 
 
 def repDuppli():
@@ -58,22 +58,24 @@ def main():
         logo()
         while True : 
             print("Usage :")
-            print("\t1 - Doublons (2 repertoires)\n\t2 - Doublons (1 repertoires) \n\t3 - Sauvegarder (BETA) \n\t4 - Quitter")
+            print("\t1 - Doublons (1 repertoires)\n\t2 - Doublons (2 repertoires) \n\t3 - Retirer les disques vides \n\t4 - Sauvegarder (WORK IN PROGRESS) \n\t5 - Quitter")
             entry = input("Saisir une opération : ").split(" ")[0].rstrip()
             if entry == '1' : 
-                repDuppli()
-                input("Appuyer sur une touche pour continuer.")
-            elif entry == '2':
                 while True : 
                     path = input("Saisir le chemin vers le repertoire à scanner : ")
                     if os.path.exists(path):break
                     else :print("Erreur : le repertoire n'existe pas.")
                 doublonScan.doublonScanRep(path)
                 input("Appuyer sur une touche pour continuer.")
+            elif entry == '2':
+                repDuppli()
+                input("Appuyer sur une touche pour continuer.")
             elif entry == '3':
                 save()
                 input("Appuyer sur une touche pour continuer.")
-            elif entry =='4':
+            elif entry == '4':
+                filesAndDirectory.findAndRemove_empty_dirs()
+            elif entry =='5':
                 print("Au revoir.")
                 exit()
             else :
