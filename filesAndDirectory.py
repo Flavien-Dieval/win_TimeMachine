@@ -1,4 +1,4 @@
-import os, send2trash, hashlib,tqdm
+import os, send2trash, hashlib,tqdm, time
 
 def isUserFile(file:str)->bool:
     try :
@@ -20,30 +20,91 @@ def isUserDirectory(path:str)->bool:
     except Exception as e:
         print(f"Erreur : {e}", e.__traceback__.tb_lineno)
 
-def hash_file(file_path):
-    """Generate a hash value for a file. MD5 is used here."""
+
+def get_file_size(file_path):
+    """Get the size of a file in Mo."""
     try:
+        return os.path.getsize(file_path)/1024/1024
+    except OSError as e:
+        print(f"Erreur : impossible d'obtenir la taille du fichier {file_path}. Erreur : {e}")
+        return None
+
+def hash_file(file_path, block_size=0, maxStep=1000):
+    """Generate a hash value for a file. CityHash64 is used here."""
+    try:
+        cmpt = 0
         with open(file_path, 'rb') as f:
-            return hashlib.md5(f.read()).hexdigest()
+            blake2b_hash = hashlib.blake2b()
+            if block_size != 0 :
+                while chunk := f.read(block_size):
+                    cmpt += 1
+                    blake2b_hash.update(chunk)
+                    if maxStep != 0 and cmpt > maxStep:
+                            f.seek(-1024, 2)
+                            cmpt = 0
+                            while chunk := f.read(block_size):
+                                blake2b_hash.update(chunk)
+                                if cmpt > maxStep/4:
+                                    print("cmpt", cmpt)
+                                    print("Fichier trop long il a été optimisé pour la recherche de doublon.")
+                                    return blake2b_hash.hexdigest()                
+            else :
+                return hashlib.blake2b(f.read()).hexdigest()
+            return blake2b_hash.hexdigest()
     except PermissionError as e:
         print(f"Erreur : permission refusée pour le fichier {file_path}")
         return None
     except Exception as e:
-        print(f"Erreur : impossible de générer une valeur de hachage pour le fichier {file_path}. Erreur : {e}")
+        print(f"Erreur : impossible de générer une valeur de hachage pour le fichier {file_path}. Erreur : {e} line : {e.__traceback__.tb_lineno}")
         return None
+"""start = time.time()
+hash_file("F:\Documents\Flavien\\film\\film\DARK CLOUD.1.mp4", block_size=128, maxStep=1000)
+print(time.time()-start)"""
+
 
 def scanDisk(disk: str) -> dict:
     try :
+        #is system is winwods : 
+        if os.name == 'nt':
+            separator = "\\"
+        else :
+            separator = "/"
+        start = time.time()
         filesDict = {}
+        moyCAT1 = 0
+        moyCAT2 = 0
+        moyCAT3 = 0
+        cmpt = 0
         for root, dirs, files in tqdm.tqdm(os.walk(disk)):
             dirs[:] = [d for d in dirs if not d[0] == '.' and  d !="AppData"]  # Ignorer les dossiers commençant par un point
             for file in files:
+                cmpt +=1
                 if isUserFile(file):
-                    file_path = os.path.join(root, file)
-                    hash_val = hash_file(file_path)
+                    file_path = root+separator+file
+                    sizeFile = get_file_size(file_path)
+                    if sizeFile is None:
+                        sizeFile = 0
+                    if sizeFile > 4 and sizeFile < 1000:
+                        hash_val = hash_file(file_path, block_size=128, maxStep=250)
+                    elif sizeFile > 1000 and sizeFile < 10000:
+                        print(f"{file_path} à été optimisé. CAT2")
+                        start = time.time()
+                        hash_val = hash_file(file_path, block_size=256, maxStep=400)
+                        moyCAT2 += time.time()-start
+                    elif sizeFile > 10000:
+                        print(f"{file_path} à été optimisé. CAT3")
+                        hash_val = hash_file(file_path, block_size=512, maxStep=1000)
+                    else :
+                        hash_val = hash_file(file_path)
                     if hash_val is not None:
                         filesDict[file_path] = hash_val
+        print("Temps d'analyse du disque :",time.time()-start)
         return filesDict
+    except KeyboardInterrupt:
+        print(moyCAT1/cmpt, moyCAT2/cmpt, moyCAT3/cmpt)
+        if input("Voulez vous analyser les doublons déjà trouvé, ou complétement arrêter ? (y/n) : ") == 'y':
+            return filesDict
+        return None
     except Exception as e: 
         print(f"Erreur : {e}", e.__traceback__.tb_lineno)
 

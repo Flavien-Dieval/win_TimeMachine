@@ -1,13 +1,22 @@
 import os
 import filesAndDirectory
-import tqdm
+import tqdm,time
 
 def removeIdenticalFiles(files: list)->list:
     """Remove identical files from a list."""
-    for file in files:
-        if [file[1], file[0]] in files:
-            files.remove([file[1], file[0]])
-    return files
+    seen = set()
+    unique_files = []
+    for file in tqdm.tqdm(files):
+        # Convert the file to a tuple so it can be added to a set
+        file_tuple = tuple(file)
+        # Check if the file or its reverse is in the set
+        if file_tuple not in seen and file_tuple[::-1] not in seen:
+            # Add the file and its reverse to the set
+            seen.add(file_tuple)
+            seen.add(file_tuple[::-1])
+            # Add the file to the list of unique files
+            unique_files.append(file)
+    return unique_files
 
 def doublonScanRep(rep:str)-> None:
     try :
@@ -23,11 +32,14 @@ def doublonScanRep(rep:str)-> None:
         if len(find) == 0:
             print("Aucun fichier en double n'a été trouvé.")
         else :
-            print("Les fichiers suivants sont identiques : ")
+            print("Analyse terminée, optimisation des résultats ...")
+            start = time.time()
             find = removeIdenticalFiles(find)
+            input(time.time()-start)
+            print("Les fichiers suivants sont identiques : ")
             for i in range(len(find)):
                 print(f"{i} | {find[i][0]} = {find[i][1]}")
-        print(f"Analyse terminée. TOTAL : {len(find)}")
+        print(f"Analyse terminée. TOTAL : {len(find)} doublons trouvés.")
         if len(find)>0 and input("Voulez-vous supprimer les fichiers en double ? (y/n) : ") == 'y':
             filesAndDirectory.deleteMenu(find, rep)
         print("Opération terminée.")
