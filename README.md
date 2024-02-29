@@ -1,5 +1,5 @@
 # win_TimeMachine
-An equivalent of time machine on windows, linux and mac in command line.
+An duplicated files manager on windows, linux and mac in command line.
 
 # Requirement : 
 - Python 3.10 or highter.
