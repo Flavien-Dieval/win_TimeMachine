@@ -9,5 +9,5 @@ An equivalent of time machine on windows, linux and mac in command line.
 python3 main.py
 ```
 
-[!WARNING]
-This software, like all backup management software, should be used with caution. This software is currently in the beta and testing phase.
+> [!WARNING]
+> This software, like all backup management software, should be used with caution. This software is currently in the beta and testing phase.
