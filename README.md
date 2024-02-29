@@ -1,7 +1,13 @@
 # win_TimeMachine
 An equivalent of time machine on windows, linux and mac in command line.
 
+# Requirement : 
+- Python 3.10 or highter.
+
 # Running : 
 ```
-python  main.py or python3 main.py
+python3 main.py
 ```
+
+[!WARNING]
+This software, like all backup management software, should be used with caution. This software is currently in the beta and testing phase.
