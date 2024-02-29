@@ -10,4 +10,4 @@ python3 main.py
 ```
 
 > [!WARNING]
-> This software, like all backup management software, should be used with caution. This software is currently in the beta and testing phase.
+> This software, like all backup nd duplicated files, management software a should be used with caution. This software is currently in the beta and testing phase.
