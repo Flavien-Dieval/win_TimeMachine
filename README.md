@@ -1,5 +1,5 @@
 # win_TimeMachine
-A duplicated files manager on windows, linux and mac in command line.
+A duplicated files manager on windows, linux and mac in command line interface.
 
 # Requirement : 
 - Python 3.10 or highter.
